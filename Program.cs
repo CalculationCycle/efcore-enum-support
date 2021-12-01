@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConsoleAppEFCoreEnum.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace ConsoleAppEFCoreEnum
 {
@@ -10,7 +11,13 @@ namespace ConsoleAppEFCoreEnum
     {
         static void Main(string[] args)
         {
-            using (var _context = new MainContext())
+            var builder = new ConfigurationBuilder()
+                 .AddJsonFile($"appsettings.json", true, true);
+
+            var config = builder.Build();
+            var connectionString = config["ConnectionStrings:SQL"];
+
+            using (var _context = new MainContext(connectionString))
             {
                 _context.Database.Migrate();
 

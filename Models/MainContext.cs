@@ -9,11 +9,18 @@ namespace ConsoleAppEFCoreEnum.Models
 {
     class MainContext: DbContext
     {
+        private readonly string _connectionString;
+        
         public DbSet<Movie> Movies { get; set; }
     
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=localhost\SQLEXPRESS2017;Database=EFCoreEnumSupport;Integrated Security=True; MultipleActiveResultSets=True;");
+            optionsBuilder.UseSqlServer(_connectionString);
+        }
+
+        public MainContext(string connectionString) : base()
+        {
+            _connectionString = connectionString;
         }
     }
 
