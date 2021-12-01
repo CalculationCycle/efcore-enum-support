@@ -65,7 +65,7 @@ namespace ConsoleAppEFCoreEnum
             Console.WriteLine($"-- ALL MOVIES ({movieList.Count} movies) --");
             foreach (var movie in movieList)
             {
-                OutputMovieInfo(movie, (Genres)0, FilterType.None);
+                OutputMovieInfo(movie);
             }
             Console.WriteLine("");
         }
@@ -79,10 +79,9 @@ namespace ConsoleAppEFCoreEnum
 
             Console.WriteLine($"-- MOVIES AND-FILTERED BY GENRE [{filterGenres}] ({movieList.Count} movies) --");
 
-            foreach (var movie in movieList)
-            {
-                OutputMovieInfo(movie, filterGenres, FilterType.And);
-            }
+            var filterFlagnameList = GetGenreFlagNameList(filterGenres);
+
+            movieList.ForEach(m => OutputMovieInfo(m, filterFlagnameList));
         }
 
         private static void GetOrFilteredMovies(MainContext context, Genres filterGenres)
@@ -97,17 +96,15 @@ namespace ConsoleAppEFCoreEnum
 
             Console.WriteLine($"-- MOVIES OR-FILTERED BY GENRE [{filterGenres}] ({movieList.Count} movies) --");
 
-            foreach (var movie in movieList)
-            {
-                OutputMovieInfo(movie, filterGenres, FilterType.Or);
-            }
+            var filterFlagnameList = GetGenreFlagNameList(filterGenres);
+
+            movieList.ForEach(m => OutputMovieInfo(m, filterFlagnameList));
         }
 
-        private static void OutputMovieInfo(Movie movie, Genres filterGenres, FilterType filterType)
+        private static void OutputMovieInfo(Movie movie, List<Enum> filterFlagnameList = null)
         {
-
             Console.Write($"Id: {movie.Id,-4} Title: {movie.Title,-20} Year: {movie.Year}  GenresInt: {(int)movie.Genres,-5} Genres: ");
-            if ((int)filterGenres == 0)
+            if (filterFlagnameList is null)
             { 
                 Console.WriteLine($"{movie.Genres}");
             }
@@ -115,8 +112,8 @@ namespace ConsoleAppEFCoreEnum
             {
                 string movieGenresString = movie.Genres.ToString();
                 List<ColoredString> colorStringList = new();
-                var filterFlagList = Enum.GetValues(filterGenres.GetType()).Cast<Enum>().Where(filterGenres.HasFlag).ToList();
-                foreach (var f in filterFlagList)
+                
+                foreach (var f in filterFlagnameList)
                 {
                     var filterName = f.ToString();
                     var indexOfFilterName = movieGenresString.IndexOf(filterName);
@@ -133,7 +130,7 @@ namespace ConsoleAppEFCoreEnum
                 colorStringList.Sort((a, b) => a.StartPos - b.StartPos);
 
                 //Set colors
-                if (filterFlagList.Count == colorStringList.Count)
+                if (filterFlagnameList.Count == colorStringList.Count)
                     colorStringList.ForEach(cs => cs.TextColor = ConsoleColor.Green);
                 else
                     colorStringList.ForEach(cs => cs.TextColor = ConsoleColor.Yellow);
@@ -160,6 +157,10 @@ namespace ConsoleAppEFCoreEnum
 
                 Console.WriteLine("");
             }
+        }
+        private static List<Enum> GetGenreFlagNameList(Genres filterGenres)
+        {
+            return Enum.GetValues(filterGenres.GetType()).Cast<Enum>().Where(filterGenres.HasFlag).Where(f => (Genres)f != Genres.None).ToList();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ConsoleAppEFCoreEnum.Models
     [Flags]
     public enum Genres
     {
-        //None = 0,
+        None = 0,
         Horror = 1,
         Drama = 2,
         Thriller = 4,
